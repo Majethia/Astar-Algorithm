@@ -10,21 +10,17 @@ class Node:
 
     def calc_g(self):
         if self.previous == None:
-            g = 0
+            self.g = 0
+            return
         elif self.previous.x == self.x or self.previous.y == self.y:
             g = 10
         else:
-            g = 14
-        
-        p = self.previous
-        while p:
-            g += p.g
-            p = p.previous
-        self.g = g
+            g = 15
+        self.g = g + self.previous.g
 
     def calc_h(self, goal):
-        x = abs(goal.x - self.x)
-        y = abs(goal.y - self.y)
+        x = goal.x - self.x
+        y = goal.y - self.y
         m = (min(x, y), max(x, y))
         self.h = (m[0] * 14) + ((m[1] - m[0]) * 10)
 
@@ -99,30 +95,3 @@ class Grid:
             for j in range(self.cols):
                 res += f"{self.grid[i][j].__str__()}\n"
         return res
-
-
-
-grid = Grid(5, 5, (0, 0), (4, 4), [(2,2)])
-
-while True:
-    current = min(grid.open_list)
-    grid.open_list.remove(current)
-    grid.closed_list.append(current)
-
-    if current == grid.goal:
-        break
-
-    neighbours = grid.find_surroundings(current)
-    for i in neighbours:
-        i.previous = current
-        i.calc_h(grid.goal)
-        i.calc_g()
-        i.calc_f()
-        if i not in grid.open_list:
-            grid.open_list.append(i)
-    
-
-p = grid.goal
-while p:
-    print(p)
-    p = p.previous
