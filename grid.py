@@ -15,7 +15,7 @@ class Node:
         elif self.previous.x == self.x or self.previous.y == self.y:
             g = 10
         else:
-            g = 15
+            g = 14
         self.g = g + self.previous.g
 
     def calc_h(self, goal):
