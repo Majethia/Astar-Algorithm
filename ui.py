@@ -1,5 +1,13 @@
-from grid import Grid, Node
+# TO DO
+# Drag to create obstacles
+# Input board size
+# Bug: with updating best path
+# Bug: bottom right to top left does not work
 
+
+
+from grid import Grid, Node
+import random
 import pygame
 import sys
 
@@ -9,11 +17,12 @@ WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
-YELLOW = (255, 255, 0)
-WINDOW_HEIGHT = 400
-WINDOW_WIDTH = 400
+PURPLE = (255, 0, 255)
 
-BOARD = 20
+WINDOW_HEIGHT = 600
+WINDOW_WIDTH = 600
+
+BOARD = int(input("SIZE OF THE GRID: "))
 
 class UI_Node():
     def __init__(self, n: Node, color = (255, 255, 255)):
@@ -26,10 +35,10 @@ class UI_Node():
         self.color = color
 
     def draw(self, SCREEN):
-        x = self.x * 20
-        y = self.y * 20
-        rectangle = pygame.Rect(x, y, 20, 20)
-        rectangle1 = pygame.Rect(x+2, y+2, 16, 16)
+        x = self.x * WINDOW_HEIGHT / BOARD
+        y = self.y * WINDOW_HEIGHT / BOARD
+        rectangle = pygame.Rect(x, y, WINDOW_HEIGHT / BOARD, WINDOW_HEIGHT / BOARD)
+        rectangle1 = pygame.Rect(x+2, y+2, WINDOW_HEIGHT / BOARD - 4, WINDOW_HEIGHT / BOARD - 4)
 
         pygame.draw.rect(SCREEN, BLACK, rectangle)
         pygame.draw.rect(SCREEN, self.color, rectangle1)
@@ -45,10 +54,94 @@ def main():
     CLOCK = pygame.time.Clock()
     SCREEN.fill(WHITE)
 
-    obs = []
-    for i in range(18):
-        obs.append((8, i+2))
-    grid = Grid(BOARD, BOARD, (0, 0), (BOARD - 1, BOARD -1), obs)
+
+    grid = Grid(BOARD, BOARD, (0, 0), (BOARD - 1, BOARD -1), [])
+    run = True
+    while run:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONUP:
+                pos = pygame.mouse.get_pos()
+                x, y = pos[0]//(WINDOW_HEIGHT/BOARD), pos[1]//(WINDOW_HEIGHT/BOARD)
+                x = int(x)
+                y = int(y)
+                if event.button == 1:
+                    grid.start = grid.grid[x][y]
+                if event.button == 3:
+                    grid.goal = grid.grid[x][y]
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    run = False
+
+        for i in range(BOARD):
+            for j in range(BOARD):
+                n = UI_Node(grid.grid[i][j])
+                if grid.grid[i][j].obstacle:
+                    n.color = GREY
+                if grid.grid[i][j] == grid.start:
+                    n.color = PURPLE
+                if grid.grid[i][j] == grid.goal:
+                    n.color = BLUE
+                elif grid.grid[i][j] in grid.open_list:
+                    n.color = GREEN
+                elif grid.grid[i][j] in grid.closed_list:
+                    n.color = RED
+                n.draw(SCREEN)
+
+        pygame.display.update()
+
+
+    run = True
+    while run:
+        for i in range(BOARD):
+            for j in range(BOARD):
+                n = UI_Node(grid.grid[i][j])
+                if grid.grid[i][j].obstacle:
+                    n.color = GREY
+                if grid.grid[i][j] == grid.start:
+                    n.color = PURPLE
+                if grid.grid[i][j] == grid.goal:
+                    n.color = BLUE
+                elif grid.grid[i][j] in grid.open_list:
+                    n.color = GREEN
+                elif grid.grid[i][j] in grid.closed_list:
+                    n.color = RED
+
+                n.draw(SCREEN)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    run = False
+                elif event.key == pygame.K_r:
+                    for i in range(random.randint(100, 150)):
+                        grid.grid[random.randint(1, BOARD-2)][random.randint(1, BOARD-2)].obstacle = True
+                    run = False
+                
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                x, y = pos[0]// (WINDOW_HEIGHT/BOARD), pos[1]// (WINDOW_HEIGHT/BOARD)
+                x = int(x)
+                y = int(y)
+                if grid.grid[x][y].obstacle == True:
+                    grid.grid[x][y].obstacle = False
+                else:
+                    grid.grid[x][y].obstacle = True
+                    
+
+        pygame.display.update()
+            
+
+
+    grid.open_list.append(grid.start)
+
+
     while True:
         CLOCK.tick(5)
         for event in pygame.event.get():
@@ -61,6 +154,10 @@ def main():
                 n = UI_Node(grid.grid[i][j])
                 if grid.grid[i][j].obstacle:
                     n.color = GREY
+                if grid.grid[i][j] == grid.start:
+                    n.color = PURPLE
+                if grid.grid[i][j] == grid.goal:
+                    n.color = BLUE
                 elif grid.grid[i][j] in grid.open_list:
                     n.color = GREEN
                 elif grid.grid[i][j] in grid.closed_list:
@@ -71,6 +168,8 @@ def main():
         # for i in grid.open_list:
         #     print(i)
         # print("------------------------------------------------")
+        if not grid.open_list:
+            break
         current = min(grid.open_list)
         # print("Chosen: ", current)
         # print("------------------------------------------------")
@@ -79,10 +178,10 @@ def main():
         
         if current == grid.goal:
             p = grid.goal.previous
-            n = UI_Node(grid.goal, YELLOW)
+            n = UI_Node(grid.goal, PURPLE)
             n.draw(SCREEN)
             while p:
-                n = UI_Node(p, YELLOW)
+                n = UI_Node(p, PURPLE)
                 n.draw(SCREEN)
                 p = p.previous
             pygame.display.update()
@@ -108,9 +207,3 @@ def main():
 
 
 main()
-
-
-# p = grid.goal
-# while p:
-#     print(p)
-#     p = p.previous

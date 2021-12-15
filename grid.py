@@ -19,13 +19,14 @@ class Node:
         self.g = g + self.previous.g
 
     def calc_h(self, goal):
-        x = goal.x - self.x
-        y = goal.y - self.y
+        x = abs(goal.x - self.x)
+        y = abs(goal.y - self.y)
         m = (min(x, y), max(x, y))
         self.h = (m[0] * 14) + ((m[1] - m[0]) * 10)
 
     def calc_f(self):
         self.f = self.g + self.h
+        return self.f
 
     def __str__(self) -> str:
         return f"x pos: {self.x} :: y pos: {self.y} :: g cost: {self.g} :: h cost {self.h} :: f cost {self.f} :: obstacle: {self.obstacle}"
@@ -57,7 +58,7 @@ class Grid:
                 self.grid[i].append(n)
         self.start = self.grid[start[0]][start[1]]
         self.goal = self.grid[goal[0]][goal[1]]
-        self.open_list.append(self.start)
+        
 
 
     def find_surroundings(self, current: Node):
