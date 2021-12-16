@@ -1,11 +1,3 @@
-# TO DO
-# Drag to create obstacles
-# Input board size
-# Bug: with updating best path
-# Bug: bottom right to top left does not work
-
-
-
 from grid import Grid, Node
 import random
 import pygame
@@ -22,7 +14,8 @@ PURPLE = (255, 0, 255)
 WINDOW_HEIGHT = 600
 WINDOW_WIDTH = 600
 
-BOARD = int(input("SIZE OF THE GRID: "))
+# BOARD = int(input("SIZE OF THE GRID: "))
+BOARD = 20
 
 class UI_Node():
     def __init__(self, n: Node, color = (255, 255, 255)):
@@ -54,46 +47,11 @@ def main():
     CLOCK = pygame.time.Clock()
     SCREEN.fill(WHITE)
 
-
     grid = Grid(BOARD, BOARD, (0, 0), (BOARD - 1, BOARD -1), [])
-    run = True
-    while run:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.MOUSEBUTTONUP:
-                pos = pygame.mouse.get_pos()
-                x, y = pos[0]//(WINDOW_HEIGHT/BOARD), pos[1]//(WINDOW_HEIGHT/BOARD)
-                x = int(x)
-                y = int(y)
-                if event.button == 1:
-                    grid.start = grid.grid[x][y]
-                if event.button == 3:
-                    grid.goal = grid.grid[x][y]
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
-                    run = False
-
-        for i in range(BOARD):
-            for j in range(BOARD):
-                n = UI_Node(grid.grid[i][j])
-                if grid.grid[i][j].obstacle:
-                    n.color = GREY
-                if grid.grid[i][j] == grid.start:
-                    n.color = PURPLE
-                if grid.grid[i][j] == grid.goal:
-                    n.color = BLUE
-                elif grid.grid[i][j] in grid.open_list:
-                    n.color = GREEN
-                elif grid.grid[i][j] in grid.closed_list:
-                    n.color = RED
-                n.draw(SCREEN)
-
-        pygame.display.update()
-
 
     run = True
+    select_mode = False
+    erase_mode = False
     while run:
         for i in range(BOARD):
             for j in range(BOARD):
@@ -120,20 +78,36 @@ def main():
                 if event.key == pygame.K_RETURN:
                     run = False
                 elif event.key == pygame.K_r:
-                    for i in range(random.randint(100, 150)):
+                    for i in range(random.randint(BOARD**2/2 - 50, BOARD**2/2 + 50)):
                         grid.grid[random.randint(1, BOARD-2)][random.randint(1, BOARD-2)].obstacle = True
                     run = False
-                
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            
+            if select_mode:
                 pos = pygame.mouse.get_pos()
                 x, y = pos[0]// (WINDOW_HEIGHT/BOARD), pos[1]// (WINDOW_HEIGHT/BOARD)
                 x = int(x)
                 y = int(y)
-                if grid.grid[x][y].obstacle == True:
-                    grid.grid[x][y].obstacle = False
-                else:
-                    grid.grid[x][y].obstacle = True
-                    
+                grid.grid[x][y].obstacle = True
+            
+            if erase_mode:
+                pos = pygame.mouse.get_pos()
+                x, y = pos[0]// (WINDOW_HEIGHT/BOARD), pos[1]// (WINDOW_HEIGHT/BOARD)
+                x = int(x)
+                y = int(y)
+                grid.grid[x][y].obstacle = False
+                
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    select_mode = True
+                if event.button == 3:
+                    erase_mode = True
+                
+
+            if event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1:
+                    select_mode = False
+                if event.button == 3:
+                    erase_mode = False
 
         pygame.display.update()
             
@@ -165,14 +139,9 @@ def main():
 
                 n.draw(SCREEN)
 
-        # for i in grid.open_list:
-        #     print(i)
-        # print("------------------------------------------------")
         if not grid.open_list:
             break
         current = min(grid.open_list)
-        # print("Chosen: ", current)
-        # print("------------------------------------------------")
         grid.open_list.remove(current)
         grid.closed_list.append(current)
         
