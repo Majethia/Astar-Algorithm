@@ -69,15 +69,15 @@ class Grid:
             sr.append(self.grid[current.x + 1][current.y])
         if (current.y + 1) < self.cols:
             sr.append(self.grid[current.x][current.y + 1])
-        if (current.x - 1) > 0 and (current.y - 1) > 0:
+        if (current.x - 1) >= 0 and (current.y - 1) >= 0:
             sr.append(self.grid[current.x - 1][current.y - 1])
-        if (current.x - 1) > 0:
+        if (current.x - 1) >= 0:
             sr.append(self.grid[current.x - 1][current.y])
-        if (current.y - 1) > 0:
+        if (current.y - 1) >= 0:
             sr.append(self.grid[current.x][current.y - 1])
-        if (current.x - 1) > 0 and (current.y + 1) < self.cols:
+        if (current.x - 1) >= 0 and (current.y + 1) < self.cols:
             sr.append(self.grid[current.x - 1][current.y + 1])
-        if (current.y - 1) > 0 and (current.x + 1) < self.rows:
+        if (current.y - 1) >= 0 and (current.x + 1) < self.rows:
             sr.append(self.grid[current.x + 1][current.y - 1]) 
         res_sr = []
         for i in sr:

@@ -17,6 +17,14 @@ WINDOW_WIDTH = 600
 # BOARD = int(input("SIZE OF THE GRID: "))
 BOARD = 20
 
+pygame.init()
+
+
+SCREEN = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+CLOCK = pygame.time.Clock()
+SCREEN.fill(WHITE)
+
+
 class UI_Node():
     def __init__(self, n: Node, color = (255, 255, 255)):
         self.x = n.x
@@ -41,12 +49,6 @@ class UI_Node():
 
 
 def main():
-    global SCREEN, CLOCK
-    pygame.init()
-    SCREEN = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-    CLOCK = pygame.time.Clock()
-    SCREEN.fill(WHITE)
-
     grid = Grid(BOARD, BOARD, (0, 0), (BOARD - 1, BOARD -1), [])
 
     run = True
@@ -78,7 +80,7 @@ def main():
                 if event.key == pygame.K_RETURN:
                     run = False
                 elif event.key == pygame.K_r:
-                    for i in range(random.randint(BOARD**2/2 - 50, BOARD**2/2 + 50)):
+                    for i in range(random.randint(int(BOARD**2/4 - 50), int(BOARD**2/4 + 50))):
                         grid.grid[random.randint(1, BOARD-2)][random.randint(1, BOARD-2)].obstacle = True
                     run = False
             
@@ -117,7 +119,7 @@ def main():
 
 
     while True:
-        CLOCK.tick(5)
+        # CLOCK.tick(5)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -173,6 +175,8 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    main()
 
 main()
