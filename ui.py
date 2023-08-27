@@ -27,17 +27,12 @@ SCREEN.fill(WHITE)
 
 class UI_Node():
     def __init__(self, n: Node, color = (255, 255, 255)):
-        self.x = n.x
-        self.y = n.y
-        self.g = n.g
-        self.h = n.h
-        self.obstacle = n.obstacle
-        self.previous = n.previous
+        self.n = n
         self.color = color
 
     def draw(self, SCREEN):
-        x = self.x * WINDOW_HEIGHT / BOARD
-        y = self.y * WINDOW_HEIGHT / BOARD
+        x = self.n.x * WINDOW_HEIGHT / BOARD
+        y = self.n.y * WINDOW_HEIGHT / BOARD
         rectangle = pygame.Rect(x, y, WINDOW_HEIGHT / BOARD, WINDOW_HEIGHT / BOARD)
         rectangle1 = pygame.Rect(x+2, y+2, WINDOW_HEIGHT / BOARD - 4, WINDOW_HEIGHT / BOARD - 4)
 
@@ -89,7 +84,8 @@ def main():
                 x, y = pos[0]// (WINDOW_HEIGHT/BOARD), pos[1]// (WINDOW_HEIGHT/BOARD)
                 x = int(x)
                 y = int(y)
-                grid.grid[x][y].obstacle = True
+                if 0 <= x < grid.cols and 0 <= y < grid.rows:
+                    grid.grid[x][y].obstacle = True
             
             if erase_mode:
                 pos = pygame.mouse.get_pos()
@@ -160,13 +156,17 @@ def main():
 
         neighbours = grid.find_surroundings(current)
         for i in neighbours:
-            i.previous = current
-            i.calc_h(grid.goal)
-            i.calc_g()
-            i.calc_f()
-            if i not in grid.open_list:
-                grid.open_list.append(i)
-
+            if current.x != i.x and current.y != i.y:
+                new_g = current.g + 14
+            else:
+                new_g = current.g + 10 
+            if new_g < i.g:
+                i.g = new_g
+                i.previous = current
+                i.calc_h(grid.goal)
+                i.calc_f()
+                if i not in grid.open_list:
+                    grid.open_list.append(i)
 
         pygame.display.update()
 

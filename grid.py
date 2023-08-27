@@ -1,5 +1,5 @@
 class Node:
-    def __init__(self, x = 0, y = 0, g = 0, h = 0, obstacle = False, previous = None):
+    def __init__(self, x = 0, y = 0, g = float('inf'), h = 0, obstacle = False, previous = None):
         self.x = x
         self.y = y
         self.g = g
@@ -10,7 +10,7 @@ class Node:
 
     def calc_g(self):
         if self.previous == None:
-            self.g = 0
+            self.g = float('inf')
             return
         elif self.previous.x == self.x or self.previous.y == self.y:
             g = 10
@@ -57,37 +57,27 @@ class Grid:
                 n.calc_g()
                 self.grid[i].append(n)
         self.start = self.grid[start[0]][start[1]]
+        self.start.g = 0
+        self.start.f = 0
         self.goal = self.grid[goal[0]][goal[1]]
         
 
-
     def find_surroundings(self, current: Node):
         sr = []
-        if (current.x + 1) < self.rows and (current.y + 1) < self.cols:
-            sr.append(self.grid[current.x + 1][current.y + 1])
-        if (current.x + 1) < self.rows:
-            sr.append(self.grid[current.x + 1][current.y])
-        if (current.y + 1) < self.cols:
-            sr.append(self.grid[current.x][current.y + 1])
-        if (current.x - 1) >= 0 and (current.y - 1) >= 0:
-            sr.append(self.grid[current.x - 1][current.y - 1])
-        if (current.x - 1) >= 0:
-            sr.append(self.grid[current.x - 1][current.y])
-        if (current.y - 1) >= 0:
-            sr.append(self.grid[current.x][current.y - 1])
-        if (current.x - 1) >= 0 and (current.y + 1) < self.cols:
-            sr.append(self.grid[current.x - 1][current.y + 1])
-        if (current.y - 1) >= 0 and (current.x + 1) < self.rows:
-            sr.append(self.grid[current.x + 1][current.y - 1]) 
-        res_sr = []
-        for i in sr:
-            if i.obstacle:
-                pass
-            elif i in self.closed_list:
-                pass
-            else:
-                res_sr.append(i)
-        return res_sr
+        closed_set = set(self.closed_list)
+        deltas = [(1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (-1, -1), (-1, 1), (1, -1)]
+        
+        for dx, dy in deltas:
+            new_x, new_y = current.x + dx, current.y + dy
+            if 0 <= new_x < self.rows and 0 <= new_y < self.cols:
+                neighbor = self.grid[new_x][new_y]
+                if neighbor.obstacle:
+                    continue
+                if neighbor in closed_set:
+                    continue
+                sr.append(neighbor)
+        
+        return sr
 
 
     def __str__(self) -> str:
